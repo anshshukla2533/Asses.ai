@@ -1,0 +1,15 @@
+fastapi
+requests
+redis
+python-dotenv
+pyttsx3
+google-generativeai
+pyaudio
+keyboard
+uvicorn
+fitz
+docx
+re
+os
+base64
+json
