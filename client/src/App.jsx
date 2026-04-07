@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react'
 function App() {
   const [health, setHealth] = useState(null)
   const [summary, setSummary] = useState(null)
+  const [interviewModules, setInterviewModules] = useState(null)
   const [resumeAnalysis, setResumeAnalysis] = useState(null)
   const [chatHistory, setChatHistory] = useState(null)
   const [sessionStatus, setSessionStatus] = useState(null)
@@ -13,18 +14,21 @@ function App() {
       try {
         const healthResponse = await fetch('http://127.0.0.1:8000/health')
         const summaryResponse = await fetch('http://127.0.0.1:8000/api/platform-summary')
+        const interviewModulesResponse = await fetch('http://127.0.0.1:8000/api/interview-modules')
         const resumeAnalysisResponse = await fetch('http://127.0.0.1:8000/api/resume-analysis')
         const chatHistoryResponse = await fetch('http://127.0.0.1:8000/api/chat-history')
         const sessionStatusResponse = await fetch('http://127.0.0.1:8000/api/session-status')
 
         const healthData = await healthResponse.json()
         const summaryData = await summaryResponse.json()
+        const interviewModulesData = await interviewModulesResponse.json()
         const resumeAnalysisData = await resumeAnalysisResponse.json()
         const chatHistoryData = await chatHistoryResponse.json()
         const sessionStatusData = await sessionStatusResponse.json()
 
         setHealth(healthData)
         setSummary(summaryData)
+        setInterviewModules(interviewModulesData)
         setResumeAnalysis(resumeAnalysisData)
         setChatHistory(chatHistoryData)
         setSessionStatus(sessionStatusData)
@@ -42,6 +46,28 @@ function App() {
             'Introduction and self-presentation',
             'Core CS concepts',
             'Algorithmic coding questions'
+          ]
+        })
+        setInterviewModules({
+          modules: [
+            {
+              id: 'intro',
+              title: 'Introduction round',
+              order: 1,
+              description: 'Candidate introduction and conversational warm-up.'
+            },
+            {
+              id: 'core-cs',
+              title: 'Core CS concepts',
+              order: 2,
+              description: 'Fundamental OOP and DBMS discussion.'
+            },
+            {
+              id: 'coding',
+              title: 'Algorithmic coding round',
+              order: 3,
+              description: 'Problem-solving questions based on candidate profile context.'
+            }
           ]
         })
         setResumeAnalysis({
@@ -67,6 +93,7 @@ function App() {
   }, [])
 
   const githubProjects = resumeAnalysis?.githubDetails || []
+  const modules = interviewModules?.modules || []
   const leetcodeTopics = resumeAnalysis?.leetcodeDetails?.tagProblemCounts?.fundamental || []
   const introMessages = chatHistory?.intro || []
   const technicalMessages = chatHistory?.technical || []
@@ -122,14 +149,14 @@ function App() {
           </div>
 
           <div className="content-panel rounded-3xl p-6">
-            <h2 className="text-2xl font-semibold text-white">Interview rounds</h2>
+            <h2 className="text-2xl font-semibold text-white">Interview modules</h2>
             <div className="mt-4 space-y-3">
-              {(summary?.rounds || []).map((item, index) => (
-                <div key={item} className="list-row rounded-2xl px-4 py-3 text-slate-200">
+              {modules.map((item) => (
+                <div key={item.id} className="list-row rounded-2xl px-4 py-3 text-slate-200">
                   <span className="mr-3 inline-flex h-7 w-7 items-center justify-center rounded-full bg-cyan-500/20 text-sm font-semibold text-cyan-200">
-                    {index + 1}
+                    {item.order}
                   </span>
-                  {item}
+                  <span className="font-semibold text-white">{item.title}</span> - {item.description}
                 </div>
               ))}
             </div>
