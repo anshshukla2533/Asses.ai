@@ -3,6 +3,7 @@ import React, { useEffect, useState } from 'react'
 function App() {
   const [health, setHealth] = useState(null)
   const [summary, setSummary] = useState(null)
+  const [resumeAnalysis, setResumeAnalysis] = useState(null)
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
@@ -10,12 +11,15 @@ function App() {
       try {
         const healthResponse = await fetch('http://127.0.0.1:8000/health')
         const summaryResponse = await fetch('http://127.0.0.1:8000/api/platform-summary')
+        const resumeAnalysisResponse = await fetch('http://127.0.0.1:8000/api/resume-analysis')
 
         const healthData = await healthResponse.json()
         const summaryData = await summaryResponse.json()
+        const resumeAnalysisData = await resumeAnalysisResponse.json()
 
         setHealth(healthData)
         setSummary(summaryData)
+        setResumeAnalysis(resumeAnalysisData)
       } catch (error) {
         setHealth({ status: 'offline', redis: 'disconnected' })
         setSummary({
@@ -32,6 +36,10 @@ function App() {
             'Algorithmic coding questions'
           ]
         })
+        setResumeAnalysis({
+          githubDetails: [],
+          leetcodeDetails: {}
+        })
       }
 
       setLoading(false)
@@ -39,6 +47,9 @@ function App() {
 
     loadData()
   }, [])
+
+  const githubProjects = resumeAnalysis?.githubDetails || []
+  const leetcodeTopics = resumeAnalysis?.leetcodeDetails?.tagProblemCounts?.fundamental || []
 
   return (
     <div className="min-h-screen app-shell">
@@ -93,6 +104,42 @@ function App() {
                     {index + 1}
                   </span>
                   {item}
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        <div className="mt-6 grid gap-6 lg:grid-cols-2">
+          <div className="content-panel rounded-3xl p-6">
+            <h2 className="text-2xl font-semibold text-white">Resume GitHub analysis</h2>
+            <div className="mt-4 space-y-3">
+              {githubProjects.length === 0 && (
+                <div className="list-row rounded-2xl px-4 py-3 text-slate-200">
+                  {loading ? 'Loading project data...' : 'No GitHub repository details found in the sample resume.'}
+                </div>
+              )}
+
+              {githubProjects.map((item, index) => (
+                <div key={index} className="list-row rounded-2xl px-4 py-3 text-slate-200">
+                  {item[0] || 'Repository description unavailable'}
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div className="content-panel rounded-3xl p-6">
+            <h2 className="text-2xl font-semibold text-white">LeetCode topic snapshot</h2>
+            <div className="mt-4 space-y-3">
+              {leetcodeTopics.length === 0 && (
+                <div className="list-row rounded-2xl px-4 py-3 text-slate-200">
+                  {loading ? 'Loading coding profile...' : 'No LeetCode topic data found in the sample resume.'}
+                </div>
+              )}
+
+              {leetcodeTopics.slice(0, 5).map((item) => (
+                <div key={item.tagSlug} className="list-row rounded-2xl px-4 py-3 text-slate-200">
+                  {item.tagName} - {item.problemsSolved} solved
                 </div>
               ))}
             </div>
