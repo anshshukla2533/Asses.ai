@@ -1,9 +1,14 @@
+import json
+import os
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 import uvicorn
 from redis_global import redis_client
+from Scrapper.scrap import get_github_details, get_leetcode_details
 
 app = FastAPI()
+
+resume_path = os.path.join(os.path.dirname(__file__), "constant", "resume.pdf")
 
 app.add_middleware(
     CORSMiddleware,
@@ -62,6 +67,32 @@ def platform_summary():
             "Core CS concepts",
             "Algorithmic coding questions"
         ]
+    }
+
+@app.get("/api/resume-analysis")
+def resume_analysis():
+    github_details = []
+    leetcode_details = ""
+
+    try:
+        github_details = get_github_details(resume_path)
+    except Exception:
+        github_details = []
+
+    try:
+        leetcode_details = get_leetcode_details(resume_path)
+    except Exception:
+        leetcode_details = ""
+
+    try:
+        leetcode_details = json.loads(leetcode_details) if leetcode_details else {}
+    except Exception:
+        pass
+
+    return {
+        "resumePath": resume_path,
+        "githubDetails": github_details,
+        "leetcodeDetails": leetcode_details
     }
 
 if __name__ == "__main__":
