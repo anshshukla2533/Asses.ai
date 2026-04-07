@@ -34,6 +34,20 @@ def voice_support_available():
     except Exception:
         return False
 
+def github_scraping_available():
+    try:
+        scrap_module = importlib.import_module("Scrapper.scrap")
+        return hasattr(scrap_module, "get_github_details")
+    except Exception:
+        return False
+
+def leetcode_scraping_available():
+    try:
+        scrap_module = importlib.import_module("Scrapper.scrap")
+        return hasattr(scrap_module, "get_leetcode_details")
+    except Exception:
+        return False
+
 @app.get("/")
 def read_root():
     visits = 0
@@ -191,6 +205,8 @@ def interview_modules():
 def capabilities():
     redis_connected = True
     voice_support = voice_support_available()
+    github_scraping = github_scraping_available()
+    leetcode_scraping = leetcode_scraping_available()
 
     try:
         redis_client.ping()
@@ -200,8 +216,8 @@ def capabilities():
     return {
         "resumeFileAvailable": os.path.exists(resume_path),
         "redisConnected": redis_connected,
-        "githubScrapingAvailable": True,
-        "leetcodeScrapingAvailable": True,
+        "githubScrapingAvailable": github_scraping,
+        "leetcodeScrapingAvailable": leetcode_scraping,
         "voiceSupportAvailable": voice_support
     }
 
