@@ -4,6 +4,7 @@ function App() {
   const [health, setHealth] = useState(null)
   const [summary, setSummary] = useState(null)
   const [interviewModules, setInterviewModules] = useState(null)
+  const [capabilities, setCapabilities] = useState(null)
   const [resumeAnalysis, setResumeAnalysis] = useState(null)
   const [chatHistory, setChatHistory] = useState(null)
   const [sessionStatus, setSessionStatus] = useState(null)
@@ -15,6 +16,7 @@ function App() {
         const healthResponse = await fetch('http://127.0.0.1:8000/health')
         const summaryResponse = await fetch('http://127.0.0.1:8000/api/platform-summary')
         const interviewModulesResponse = await fetch('http://127.0.0.1:8000/api/interview-modules')
+        const capabilitiesResponse = await fetch('http://127.0.0.1:8000/api/capabilities')
         const resumeAnalysisResponse = await fetch('http://127.0.0.1:8000/api/resume-analysis')
         const chatHistoryResponse = await fetch('http://127.0.0.1:8000/api/chat-history')
         const sessionStatusResponse = await fetch('http://127.0.0.1:8000/api/session-status')
@@ -22,6 +24,7 @@ function App() {
         const healthData = await healthResponse.json()
         const summaryData = await summaryResponse.json()
         const interviewModulesData = await interviewModulesResponse.json()
+        const capabilitiesData = await capabilitiesResponse.json()
         const resumeAnalysisData = await resumeAnalysisResponse.json()
         const chatHistoryData = await chatHistoryResponse.json()
         const sessionStatusData = await sessionStatusResponse.json()
@@ -29,6 +32,7 @@ function App() {
         setHealth(healthData)
         setSummary(summaryData)
         setInterviewModules(interviewModulesData)
+        setCapabilities(capabilitiesData)
         setResumeAnalysis(resumeAnalysisData)
         setChatHistory(chatHistoryData)
         setSessionStatus(sessionStatusData)
@@ -70,6 +74,13 @@ function App() {
             }
           ]
         })
+        setCapabilities({
+          resumeFileAvailable: false,
+          redisConnected: false,
+          githubScrapingAvailable: false,
+          leetcodeScrapingAvailable: false,
+          voiceSupportAvailable: false
+        })
         setResumeAnalysis({
           githubDetails: [],
           leetcodeDetails: {}
@@ -94,6 +105,13 @@ function App() {
 
   const githubProjects = resumeAnalysis?.githubDetails || []
   const modules = interviewModules?.modules || []
+  const capabilityItems = [
+    { label: 'Resume file', value: capabilities?.resumeFileAvailable },
+    { label: 'Redis connection', value: capabilities?.redisConnected },
+    { label: 'GitHub scraping', value: capabilities?.githubScrapingAvailable },
+    { label: 'LeetCode scraping', value: capabilities?.leetcodeScrapingAvailable },
+    { label: 'Voice support', value: capabilities?.voiceSupportAvailable }
+  ]
   const leetcodeTopics = resumeAnalysis?.leetcodeDetails?.tagProblemCounts?.fundamental || []
   const introMessages = chatHistory?.intro || []
   const technicalMessages = chatHistory?.technical || []
@@ -164,6 +182,17 @@ function App() {
         </div>
 
         <div className="mt-6 grid gap-6 lg:grid-cols-2">
+          <div className="content-panel rounded-3xl p-6">
+            <h2 className="text-2xl font-semibold text-white">Platform capabilities</h2>
+            <div className="mt-4 space-y-3">
+              {capabilityItems.map((item) => (
+                <div key={item.label} className="list-row rounded-2xl px-4 py-3 text-slate-200">
+                  {item.label}: {loading ? 'Checking...' : item.value ? 'Available' : 'Unavailable'}
+                </div>
+              ))}
+            </div>
+          </div>
+
           <div className="content-panel rounded-3xl p-6">
             <h2 className="text-2xl font-semibold text-white">Session readiness</h2>
             <div className="mt-4 space-y-3">
