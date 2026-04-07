@@ -6,6 +6,7 @@ function App() {
   const [interviewModules, setInterviewModules] = useState(null)
   const [capabilities, setCapabilities] = useState(null)
   const [generatedQuestions, setGeneratedQuestions] = useState('')
+  const [questionSource, setQuestionSource] = useState(null)
   const [customResumePath, setCustomResumePath] = useState('')
   const [customGithubDetails, setCustomGithubDetails] = useState('')
   const [customLeetcodeDetails, setCustomLeetcodeDetails] = useState('')
@@ -42,6 +43,7 @@ function App() {
         setInterviewModules(interviewModulesData)
         setCapabilities(capabilitiesData)
         setGeneratedQuestions(generatedQuestionsData.questions)
+        setQuestionSource(generatedQuestionsData.profileSource)
         setResumeAnalysis(resumeAnalysisData)
         setChatHistory(chatHistoryData)
         setSessionStatus(sessionStatusData)
@@ -91,6 +93,7 @@ function App() {
           voiceSupportAvailable: false
         })
         setGeneratedQuestions('Unable to generate interview questions right now.')
+        setQuestionSource(null)
         setResumeAnalysis({
           githubDetails: [],
           leetcodeDetails: {}
@@ -132,8 +135,10 @@ function App() {
 
       const data = await response.json()
       setGeneratedQuestions(data.questions)
+      setQuestionSource(data.profileSource)
     } catch {
       setGeneratedQuestions('Unable to generate custom interview questions right now.')
+      setQuestionSource(null)
     }
 
     setQuestionLoading(false)
@@ -262,7 +267,17 @@ function App() {
 
           <div className="content-panel rounded-3xl p-6">
             <h2 className="text-2xl font-semibold text-white">Generated interview questions</h2>
-            <div className="mt-4">
+            <div className="mt-4 space-y-3">
+              <div className="list-row rounded-2xl px-4 py-3 text-slate-200">
+                Source: {loading || questionLoading ? 'Checking...' : questionSource?.usedResumePath ? `Resume path (${questionSource.resumePath})` : 'Direct pasted profile data'}
+              </div>
+              <div className="list-row rounded-2xl px-4 py-3 text-slate-200">
+                Inputs used: {loading || questionLoading ? 'Checking...' : [
+                  questionSource?.usedGithubDetails ? 'GitHub details' : null,
+                  questionSource?.usedLeetcodeDetails ? 'LeetCode details' : null,
+                  questionSource?.usedBackgroundSummary ? 'Background summary' : null
+                ].filter(Boolean).join(', ') || 'None'}
+              </div>
               <div className="list-row rounded-2xl px-4 py-3 whitespace-pre-line text-slate-200">
                 {loading || questionLoading ? 'Generating questions...' : generatedQuestions}
               </div>

@@ -94,6 +94,15 @@ Background summary:
 Return the output as plain text with numbered questions only.
 """
 
+def get_profile_source(resume_path_value="", github_details=None, leetcode_details=None, background_summary=""):
+    return {
+        "resumePath": resume_path_value,
+        "usedResumePath": bool(resume_path_value),
+        "usedGithubDetails": bool(github_details),
+        "usedLeetcodeDetails": bool(leetcode_details),
+        "usedBackgroundSummary": bool(background_summary)
+    }
+
 @app.get("/")
 def read_root():
     visits = 0
@@ -271,6 +280,7 @@ def capabilities():
 def generate_questions():
     candidate_profile = get_candidate_profile()
     prompt = build_question_prompt(candidate_profile)
+    profile_source = get_profile_source(resume_path, candidate_profile["github_details"], candidate_profile["leetcode_details"])
 
     try:
         questions = generate_text(prompt)
@@ -279,6 +289,7 @@ def generate_questions():
 
     return {
         "candidateProfile": candidate_profile,
+        "profileSource": profile_source,
         "questions": questions
     }
 
@@ -306,6 +317,7 @@ def generate_custom_questions(request: QuestionRequest):
     }
 
     prompt = build_question_prompt(candidate_profile, request.backgroundSummary or "")
+    profile_source = get_profile_source(target_resume_path, github_details, leetcode_details, request.backgroundSummary or "")
 
     try:
         questions = generate_text(prompt)
@@ -314,6 +326,7 @@ def generate_custom_questions(request: QuestionRequest):
 
     return {
         "candidateProfile": candidate_profile,
+        "profileSource": profile_source,
         "questions": questions
     }
 
