@@ -4,6 +4,7 @@ function App() {
   const [health, setHealth] = useState(null)
   const [summary, setSummary] = useState(null)
   const [resumeAnalysis, setResumeAnalysis] = useState(null)
+  const [chatHistory, setChatHistory] = useState(null)
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
@@ -12,14 +13,17 @@ function App() {
         const healthResponse = await fetch('http://127.0.0.1:8000/health')
         const summaryResponse = await fetch('http://127.0.0.1:8000/api/platform-summary')
         const resumeAnalysisResponse = await fetch('http://127.0.0.1:8000/api/resume-analysis')
+        const chatHistoryResponse = await fetch('http://127.0.0.1:8000/api/chat-history')
 
         const healthData = await healthResponse.json()
         const summaryData = await summaryResponse.json()
         const resumeAnalysisData = await resumeAnalysisResponse.json()
+        const chatHistoryData = await chatHistoryResponse.json()
 
         setHealth(healthData)
         setSummary(summaryData)
         setResumeAnalysis(resumeAnalysisData)
+        setChatHistory(chatHistoryData)
       } catch (error) {
         setHealth({ status: 'offline', redis: 'disconnected' })
         setSummary({
@@ -40,6 +44,10 @@ function App() {
           githubDetails: [],
           leetcodeDetails: {}
         })
+        setChatHistory({
+          intro: [],
+          technical: []
+        })
       }
 
       setLoading(false)
@@ -50,6 +58,8 @@ function App() {
 
   const githubProjects = resumeAnalysis?.githubDetails || []
   const leetcodeTopics = resumeAnalysis?.leetcodeDetails?.tagProblemCounts?.fundamental || []
+  const introMessages = chatHistory?.intro || []
+  const technicalMessages = chatHistory?.technical || []
 
   return (
     <div className="min-h-screen app-shell">
@@ -140,6 +150,42 @@ function App() {
               {leetcodeTopics.slice(0, 5).map((item) => (
                 <div key={item.tagSlug} className="list-row rounded-2xl px-4 py-3 text-slate-200">
                   {item.tagName} - {item.problemsSolved} solved
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        <div className="mt-6 grid gap-6 lg:grid-cols-2">
+          <div className="content-panel rounded-3xl p-6">
+            <h2 className="text-2xl font-semibold text-white">Introduction chat history</h2>
+            <div className="mt-4 space-y-3">
+              {introMessages.length === 0 && (
+                <div className="list-row rounded-2xl px-4 py-3 text-slate-200">
+                  {loading ? 'Loading intro chat...' : 'No introduction chat history found yet.'}
+                </div>
+              )}
+
+              {introMessages.slice(-4).map((item, index) => (
+                <div key={index} className="list-row rounded-2xl px-4 py-3 text-slate-200">
+                  <span className="font-semibold text-cyan-200">{item.user || 'User'}:</span> {item.message}
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div className="content-panel rounded-3xl p-6">
+            <h2 className="text-2xl font-semibold text-white">Technical chat history</h2>
+            <div className="mt-4 space-y-3">
+              {technicalMessages.length === 0 && (
+                <div className="list-row rounded-2xl px-4 py-3 text-slate-200">
+                  {loading ? 'Loading technical chat...' : 'No technical chat history found yet.'}
+                </div>
+              )}
+
+              {technicalMessages.slice(-4).map((item, index) => (
+                <div key={index} className="list-row rounded-2xl px-4 py-3 text-slate-200">
+                  <span className="font-semibold text-cyan-200">{item.user || 'User'}:</span> {item.message}
                 </div>
               ))}
             </div>
