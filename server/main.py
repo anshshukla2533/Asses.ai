@@ -152,6 +152,31 @@ def session_status():
         "hasInterviewData": intro_count > 0 or technical_count > 0
     }
 
+@app.get("/api/interview-modules")
+def interview_modules():
+    return {
+        "modules": [
+            {
+                "id": "intro",
+                "title": "Introduction round",
+                "order": 1,
+                "description": "Candidate introduction and conversational warm-up."
+            },
+            {
+                "id": "core-cs",
+                "title": "Core CS concepts",
+                "order": 2,
+                "description": "Fundamental OOP and DBMS discussion."
+            },
+            {
+                "id": "coding",
+                "title": "Algorithmic coding round",
+                "order": 3,
+                "description": "Problem-solving questions based on candidate profile context."
+            }
+        ]
+    }
+
 if __name__ == "__main__":
     uvicorn.run(app, host="0.0.0.0", port=8000)
 
