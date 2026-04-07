@@ -1,10 +1,12 @@
 import time
 import sys
+import json
 sys.path.append('..')
 from generate import generate_text  # AI text generation function
 from Models.text_to_speech import text_to_speech
 from Models.speech_to_text import transcribe_audio
 from Models.record_audio import record_audio
+from redis_global import redis_client
 
 input_file = "recording.wav"
 
@@ -39,6 +41,13 @@ def conduct_mock_interview():
         user_response = input("User: ")  # Candidate replies
         # user_response = transcribe_audio(input_file)  # Candidate replies
         chat_context.append(f"User: {user_response}")  # Store User's response
+
+        # Store the chat in Redis
+        chat_id = redis_client.incr("intro_chat_id")
+        chat_message = {"user": "User", "message": user_response}
+        redis_client.set(f"chat:{chat_id}", json.dumps(chat_message))
+        chat_message = {"user": "AI", "message": ai_response}
+        redis_client.set(f"chat:{chat_id+1}", json.dumps(chat_message))
 
         # AI DECIDES WHEN TO EXIT (Checks for 'conversation_done = True' in its response)
         if "conversation_done = True" in ai_response:
