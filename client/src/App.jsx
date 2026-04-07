@@ -70,6 +70,12 @@ function App() {
   const leetcodeTopics = resumeAnalysis?.leetcodeDetails?.tagProblemCounts?.fundamental || []
   const introMessages = chatHistory?.intro || []
   const technicalMessages = chatHistory?.technical || []
+  const healthClassName =
+    health?.status === 'ok'
+      ? 'status-pill status-pill-ok'
+      : health?.status === 'degraded'
+        ? 'status-pill status-pill-degraded'
+        : 'status-pill status-pill-offline'
 
   return (
     <div className="min-h-screen app-shell">
@@ -86,7 +92,7 @@ function App() {
           <div className="mt-6 grid gap-4 md:grid-cols-2">
             <div className="info-card rounded-2xl p-5">
               <p className="card-label">Backend status</p>
-              <p className="mt-2 text-2xl font-semibold text-white">
+              <p className={`mt-2 inline-flex rounded-full px-3 py-1 text-sm font-semibold ${healthClassName}`}>
                 {loading ? 'Loading...' : health?.status}
               </p>
               <p className="mt-1 text-sm text-slate-300">
