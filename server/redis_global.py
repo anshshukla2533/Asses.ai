@@ -18,13 +18,15 @@ def start_redis_container():
             time.sleep(5)  # Wait for Redis to initialize
         else:
             print("✅ Redis container is already running.")
-    except subprocess.CalledProcessError as e:
+    except Exception as e:
         print(f"❌ Error starting Redis: {e}")
 
 # Start Redis container automatically
 start_redis_container()
 
 # Connect to Redis
+redis_client = None
+
 try:
     redis_client = Redis(host="localhost", port=6379, decode_responses=True)
     redis_client.ping()
