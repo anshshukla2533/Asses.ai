@@ -6,6 +6,7 @@ from fastapi.middleware.cors import CORSMiddleware
 import uvicorn
 from redis_global import redis_client
 from Scrapper.scrap import get_github_details, get_leetcode_details
+from generate import generate_text
 
 app = FastAPI()
 
@@ -47,6 +48,25 @@ def leetcode_scraping_available():
         return hasattr(scrap_module, "get_leetcode_details")
     except Exception:
         return False
+
+def get_candidate_profile():
+    github_details = []
+    leetcode_details = ""
+
+    try:
+        github_details = get_github_details(resume_path)
+    except Exception:
+        github_details = []
+
+    try:
+        leetcode_details = get_leetcode_details(resume_path)
+    except Exception:
+        leetcode_details = ""
+
+    return {
+        "github_details": github_details,
+        "leetcode_details": leetcode_details
+    }
 
 @app.get("/")
 def read_root():
@@ -219,6 +239,34 @@ def capabilities():
         "githubScrapingAvailable": github_scraping,
         "leetcodeScrapingAvailable": leetcode_scraping,
         "voiceSupportAvailable": voice_support
+    }
+
+@app.get("/api/generate-questions")
+def generate_questions():
+    candidate_profile = get_candidate_profile()
+    prompt = f"""
+You are an AI technical interviewer.
+
+Use the following candidate profile data directly to generate 3 personalized technical interview questions.
+Ask:
+1. One OOP or DBMS question
+2. One coding/problem-solving question
+3. One follow-up optimization or project-based question
+
+Candidate profile:
+{candidate_profile}
+
+Return the output as plain text with numbered questions only.
+"""
+
+    try:
+        questions = generate_text(prompt)
+    except Exception as e:
+        questions = f"Error generating questions: {e}"
+
+    return {
+        "candidateProfile": candidate_profile,
+        "questions": questions
     }
 
 if __name__ == "__main__":
