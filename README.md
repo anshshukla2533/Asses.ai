@@ -18,7 +18,7 @@ An AI-powered mock interview platform that simulates real-world technical interv
 
 ## Overview
 
-asses.ai is an intelligent interview simulation platform that conducts structured technical interviews. The system extracts candidate information from resumes, analyzes their GitHub repositories and LeetCode profiles, and uses Retrieval-Augmented Generation (RAG) to create personalized, context-aware interview questions. It conducts adaptive interviews covering introductions, core computer science concepts, and algorithmic problem-solving tailored to the candidate's experience and skill level.
+asses.ai is an intelligent interview simulation platform that conducts structured technical interviews. The system extracts candidate information from resumes, analyzes their GitHub repositories and LeetCode profiles, and uses direct profile data prompting to create personalized, context-aware interview questions. It conducts adaptive interviews covering introductions, core computer science concepts, and algorithmic problem-solving tailored to the candidate's experience and skill level.
 
 ## Features
 
@@ -26,7 +26,7 @@ asses.ai is an intelligent interview simulation platform that conducts structure
 
 - **Resume Analysis**: Extracts GitHub and LeetCode profiles from PDF/DOCX resumes
 - **Profile Scraping**: Fetches repository details, README files, and LeetCode problem-solving statistics
-- **RAG-Based Context**: Uses Retrieval-Augmented Generation to incorporate candidate profile data into interview questions
+- **Profile-Based Context**: Uses direct candidate profile data to personalize interview questions
 - **AI-Powered Interviews**: Conducts natural, conversational interviews using Google Gemini AI
 - **Voice Interaction**: Supports speech-to-text and text-to-speech for realistic interview experience
 - **Audio Recording**: Records candidate responses with keyboard-controlled recording
@@ -44,7 +44,7 @@ asses.ai is an intelligent interview simulation platform that conducts structure
 - **FastAPI Server**: REST API endpoints for interview management
 - **Redis**: Session storage and chat history persistence
 - **Docker**: Redis Stack containerization for easy deployment
-- **RAG Pipeline**: Retrieval-Augmented Generation using candidate data from GitHub/LeetCode profiles
+- **Profile Context Pipeline**: Uses candidate data from GitHub/LeetCode profiles directly in AI prompts
 - **AI Integration**: Google Gemini 1.5 Pro for natural language generation
 - **Audio Processing**: PyAudio for recording, AssemblyAI for transcription, pyttsx3 for TTS
 
@@ -209,11 +209,11 @@ python concept.py
 
 This starts the technical assessment covering:
 - Core CS questions (OOPs, DBMS)
-- Algorithmic coding problems based on LeetCode profile using RAG
+- Algorithmic coding problems based on LeetCode profile data
 - Progressive difficulty adjustment
 - Optimization challenges for brute-force solutions
 
-The agent uses RAG to retrieve candidate's LeetCode statistics and GitHub project information, incorporating this context into personalized technical questions.
+The agent uses candidate's LeetCode statistics and GitHub project information directly in AI prompts to create personalized technical questions.
 
 ### Resume Analysis
 
@@ -302,7 +302,7 @@ Powers conversational AI with:
 - Adaptive questioning
 - Natural language understanding
 - Interview flow management
-- RAG-enhanced prompting with retrieved candidate data
+- Prompting with direct candidate profile data
 
 ### AssemblyAI API
 

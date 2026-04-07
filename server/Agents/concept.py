@@ -1,14 +1,17 @@
 import time
 import sys
 import json
+import os
 sys.path.append('..')
 from generate import generate_text  # AI text generation function
 from Models.text_to_speech import text_to_speech
 from Models.speech_to_text import transcribe_audio
 from Models.record_audio import record_audio
+from Scrapper.scrap import get_github_details, get_leetcode_details
 
 from redis_global import redis_client
 input_file = "recording.wav"
+resume_path = os.path.join("..", "constant", "resume.pdf")
 
 def get_chat():
     chat_keys = redis_client.keys("chat:*")
@@ -20,121 +23,28 @@ def get_chat():
     
     return chat_history
 
+def get_candidate_profile():
+    github_details = []
+    leetcode_details = ""
+
+    try:
+        github_details = get_github_details(resume_path)
+    except Exception:
+        github_details = []
+
+    try:
+        leetcode_details = get_leetcode_details(resume_path)
+    except Exception:
+        leetcode_details = ""
+
+    return {
+        "github_details": github_details,
+        "leetcode_details": leetcode_details
+    }
+
 
 intro_chat= get_chat()
-
-coding_topics="""{
-    "tagProblemCounts": {
-        
-        "intermediate": [
-            {
-                "tagName": "Tree",
-                "tagSlug": "tree",
-                "problemsSolved": 42
-            },
-            {
-                "tagName": "Binary Tree",
-                "tagSlug": "binary-tree",
-                "problemsSolved": 40
-            },
-            {
-                "tagName": "Hash Table",
-                "tagSlug": "hash-table",
-                "problemsSolved": 72
-            },
-            {
-                "tagName": "Ordered Set",
-                "tagSlug": "ordered-set",
-                "problemsSolved": 1
-            },
-            {
-                "tagName": "Graph",
-                "tagSlug": "graph",
-                "problemsSolved": 21
-            },
-            {
-                "tagName": "Greedy",
-                "tagSlug": "greedy",
-                "problemsSolved": 30
-            },
-            {
-                "tagName": "Binary Search",
-                "tagSlug": "binary-search",
-                "problemsSolved": 36
-            },
-            {
-                "tagName": "Depth-First Search",
-                "tagSlug": "depth-first-search",
-                "problemsSolved": 53
-            },
-            {
-                "tagName": "Breadth-First Search",
-                "tagSlug": "breadth-first-search",
-                "problemsSolved": 46
-            },
-           
-            {
-                "tagName": "Math",
-                "tagSlug": "math",
-                "problemsSolved": 54
-            },
-            
-        ],
-        "fundamental": [
-            {
-                "tagName": "Array",
-                "tagSlug": "array",
-                "problemsSolved": 198
-            },
-            {
-                "tagName": "Matrix",
-                "tagSlug": "matrix",
-                "problemsSolved": 35
-            },
-            {
-                "tagName": "String",
-                "tagSlug": "string",
-                "problemsSolved": 92
-            },
-            {
-                "tagName": "Simulation",
-                "tagSlug": "simulation",
-                "problemsSolved": 28
-            },
-            {
-                "tagName": "Enumeration",
-                "tagSlug": "enumeration",
-                "problemsSolved": 5
-            },
-            {
-                "tagName": "Sorting",
-                "tagSlug": "sorting",
-                "problemsSolved": 50
-            },
-            {
-                "tagName": "Stack",
-                "tagSlug": "stack",
-                "problemsSolved": 34
-            },
-            {
-                "tagName": "Queue",
-                "tagSlug": "queue",
-                "problemsSolved": 4
-            },
-            {
-                "tagName": "Linked List",
-                "tagSlug": "linked-list",
-                "problemsSolved": 36
-            },
-            {
-                "tagName": "Two Pointers",
-                "tagSlug": "two-pointers",
-                "problemsSolved": 54
-            }
-        ]
-    }
-}"""
-
+candidate_profile = get_candidate_profile()
 
 pre_prompt = f""" You are an AI interviewer simulating a real-world technical interview experience. You have already conducted the introduction round, and here is the information from that chat: {intro_chat}.
 
@@ -149,7 +59,8 @@ You can refer to the {intro_chat} to tailor questions based on the candidate's b
 Ensure that your questions challenge their conceptual understanding, rather than just asking for definitions.
 2️⃣ Move on to Algorithmic Coding Questions:
 
-Once the candidate has answered the core CS questions, transition into few coding problem related to the topics they have covered on their coding profiles: {coding_topics}.
+Once the candidate has answered the core CS questions, transition into few coding problem related to the candidate profile data collected from the resume and coding profiles: {candidate_profile}.
+Use this direct candidate data to personalize questions instead of relying on any RAG pipeline.
 Ensure the question matches their expertise level while also pushing their problem-solving abilities.
 3️⃣ Evaluate the Candidate’s Approach (Brute Force vs. Optimal):
 
