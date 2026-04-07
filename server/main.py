@@ -1,5 +1,6 @@
 import json
 import os
+import importlib
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 import uvicorn
@@ -23,6 +24,15 @@ try:
         redis_client.set("visits", 0)
 except Exception:
     pass
+
+def voice_support_available():
+    try:
+        importlib.import_module("Models.record_audio")
+        importlib.import_module("Models.speech_to_text")
+        importlib.import_module("Models.text_to_speech")
+        return True
+    except Exception:
+        return False
 
 @app.get("/")
 def read_root():
@@ -180,6 +190,7 @@ def interview_modules():
 @app.get("/api/capabilities")
 def capabilities():
     redis_connected = True
+    voice_support = voice_support_available()
 
     try:
         redis_client.ping()
@@ -191,7 +202,7 @@ def capabilities():
         "redisConnected": redis_connected,
         "githubScrapingAvailable": True,
         "leetcodeScrapingAvailable": True,
-        "voiceSupportAvailable": True
+        "voiceSupportAvailable": voice_support
     }
 
 if __name__ == "__main__":
