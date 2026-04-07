@@ -186,8 +186,11 @@ function App() {
             <h2 className="text-2xl font-semibold text-white">Platform capabilities</h2>
             <div className="mt-4 space-y-3">
               {capabilityItems.map((item) => (
-                <div key={item.label} className="list-row rounded-2xl px-4 py-3 text-slate-200">
-                  {item.label}: {loading ? 'Checking...' : item.value ? 'Available' : 'Unavailable'}
+                <div key={item.label} className="list-row flex items-center justify-between gap-3 rounded-2xl px-4 py-3 text-slate-200">
+                  <span>{item.label}</span>
+                  <span className={`status-pill px-3 py-1 text-sm font-semibold ${loading ? 'status-pill-offline' : item.value ? 'status-pill-ok' : 'status-pill-offline'}`}>
+                    {loading ? 'Checking...' : item.value ? 'Available' : 'Unavailable'}
+                  </span>
                 </div>
               ))}
             </div>
