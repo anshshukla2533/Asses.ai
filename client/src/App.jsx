@@ -5,6 +5,7 @@ function App() {
   const [summary, setSummary] = useState(null)
   const [resumeAnalysis, setResumeAnalysis] = useState(null)
   const [chatHistory, setChatHistory] = useState(null)
+  const [sessionStatus, setSessionStatus] = useState(null)
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
@@ -14,16 +15,19 @@ function App() {
         const summaryResponse = await fetch('http://127.0.0.1:8000/api/platform-summary')
         const resumeAnalysisResponse = await fetch('http://127.0.0.1:8000/api/resume-analysis')
         const chatHistoryResponse = await fetch('http://127.0.0.1:8000/api/chat-history')
+        const sessionStatusResponse = await fetch('http://127.0.0.1:8000/api/session-status')
 
         const healthData = await healthResponse.json()
         const summaryData = await summaryResponse.json()
         const resumeAnalysisData = await resumeAnalysisResponse.json()
         const chatHistoryData = await chatHistoryResponse.json()
+        const sessionStatusData = await sessionStatusResponse.json()
 
         setHealth(healthData)
         setSummary(summaryData)
         setResumeAnalysis(resumeAnalysisData)
         setChatHistory(chatHistoryData)
+        setSessionStatus(sessionStatusData)
       } catch (error) {
         setHealth({ status: 'offline', redis: 'disconnected' })
         setSummary({
@@ -47,6 +51,12 @@ function App() {
         setChatHistory({
           intro: [],
           technical: []
+        })
+        setSessionStatus({
+          resumeAvailable: false,
+          introMessages: 0,
+          technicalMessages: 0,
+          hasInterviewData: false
         })
       }
 
@@ -121,6 +131,24 @@ function App() {
         </div>
 
         <div className="mt-6 grid gap-6 lg:grid-cols-2">
+          <div className="content-panel rounded-3xl p-6">
+            <h2 className="text-2xl font-semibold text-white">Session readiness</h2>
+            <div className="mt-4 space-y-3">
+              <div className="list-row rounded-2xl px-4 py-3 text-slate-200">
+                Resume available: {loading ? 'Checking...' : sessionStatus?.resumeAvailable ? 'Yes' : 'No'}
+              </div>
+              <div className="list-row rounded-2xl px-4 py-3 text-slate-200">
+                Intro messages stored: {loading ? 'Checking...' : sessionStatus?.introMessages}
+              </div>
+              <div className="list-row rounded-2xl px-4 py-3 text-slate-200">
+                Technical messages stored: {loading ? 'Checking...' : sessionStatus?.technicalMessages}
+              </div>
+              <div className="list-row rounded-2xl px-4 py-3 text-slate-200">
+                Interview data ready: {loading ? 'Checking...' : sessionStatus?.hasInterviewData ? 'Yes' : 'No'}
+              </div>
+            </div>
+          </div>
+
           <div className="content-panel rounded-3xl p-6">
             <h2 className="text-2xl font-semibold text-white">Resume GitHub analysis</h2>
             <div className="mt-4 space-y-3">
