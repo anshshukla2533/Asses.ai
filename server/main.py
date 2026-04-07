@@ -41,14 +41,16 @@ def read_root():
 @app.get("/health")
 def health_check():
     redis_status = "connected"
+    status = "ok"
 
     try:
         redis_client.ping()
     except Exception:
         redis_status = "disconnected"
+        status = "degraded"
 
     return {
-        "status": "ok",
+        "status": status,
         "redis": redis_status
     }
 
