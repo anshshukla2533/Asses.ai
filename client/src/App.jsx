@@ -144,6 +144,13 @@ function App() {
     setQuestionLoading(false)
   }
 
+  const handleClearCustomInputs = () => {
+    setCustomResumePath('')
+    setCustomGithubDetails('')
+    setCustomLeetcodeDetails('')
+    setBackgroundSummary('')
+  }
+
   const githubProjects = resumeAnalysis?.githubDetails || []
   const modules = interviewModules?.modules || []
   const capabilityItems = [
@@ -254,14 +261,24 @@ function App() {
                 value={backgroundSummary}
                 onChange={(event) => setBackgroundSummary(event.target.value)}
               />
-              <button
-                type="button"
-                className="action-button rounded-2xl px-4 py-3 text-sm font-semibold text-slate-950"
-                onClick={handleCustomQuestionGeneration}
-                disabled={questionLoading}
-              >
-                {questionLoading ? 'Generating...' : 'Generate custom questions'}
-              </button>
+              <div className="flex gap-3">
+                <button
+                  type="button"
+                  className="action-button rounded-2xl px-4 py-3 text-sm font-semibold text-slate-950"
+                  onClick={handleCustomQuestionGeneration}
+                  disabled={questionLoading}
+                >
+                  {questionLoading ? 'Generating...' : 'Generate custom questions'}
+                </button>
+                <button
+                  type="button"
+                  className="secondary-button rounded-2xl px-4 py-3 text-sm font-semibold text-slate-100"
+                  onClick={handleClearCustomInputs}
+                  disabled={questionLoading}
+                >
+                  Clear inputs
+                </button>
+              </div>
             </div>
           </div>
 

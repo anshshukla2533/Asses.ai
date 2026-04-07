@@ -85,3 +85,14 @@ body {
   opacity: 0.6;
   cursor: not-allowed;
 }
+
+.secondary-button {
+  border: 1px solid rgba(148, 163, 184, 0.2);
+  background: rgba(15, 23, 42, 0.72);
+  cursor: pointer;
+}
+
+.secondary-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
