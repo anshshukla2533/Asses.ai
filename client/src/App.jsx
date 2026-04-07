@@ -6,6 +6,7 @@ function App() {
   const [interviewModules, setInterviewModules] = useState(null)
   const [capabilities, setCapabilities] = useState(null)
   const [generatedQuestions, setGeneratedQuestions] = useState('')
+  const [customResumePath, setCustomResumePath] = useState('')
   const [customGithubDetails, setCustomGithubDetails] = useState('')
   const [customLeetcodeDetails, setCustomLeetcodeDetails] = useState('')
   const [backgroundSummary, setBackgroundSummary] = useState('')
@@ -122,6 +123,7 @@ function App() {
           'Content-Type': 'application/json'
         },
         body: JSON.stringify({
+          resumePath: customResumePath || null,
           githubDetails: customGithubDetails ? [customGithubDetails] : null,
           leetcodeDetails: customLeetcodeDetails || null,
           backgroundSummary: backgroundSummary || null
@@ -219,6 +221,13 @@ function App() {
           <div className="content-panel rounded-3xl p-6">
             <h2 className="text-2xl font-semibold text-white">Custom question input</h2>
             <div className="mt-4 space-y-4">
+              <input
+                className="input-area w-full rounded-2xl px-4 py-3 text-slate-100"
+                type="text"
+                placeholder="Optional local resume path, for example C:\\Users\\name\\resume.pdf"
+                value={customResumePath}
+                onChange={(event) => setCustomResumePath(event.target.value)}
+              />
               <textarea
                 className="input-area w-full rounded-2xl px-4 py-3 text-slate-100"
                 rows="4"
