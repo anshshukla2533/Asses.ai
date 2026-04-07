@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 
 function App() {
   const [health, setHealth] = useState(null)
@@ -28,7 +28,7 @@ function App() {
         setResumeAnalysis(resumeAnalysisData)
         setChatHistory(chatHistoryData)
         setSessionStatus(sessionStatusData)
-      } catch (error) {
+      } catch {
         setHealth({ status: 'offline', redis: 'disconnected' })
         setSummary({
           name: 'asses.ai',
