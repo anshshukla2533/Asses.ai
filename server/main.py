@@ -95,6 +95,38 @@ def resume_analysis():
         "leetcodeDetails": leetcode_details
     }
 
+@app.get("/api/chat-history")
+def chat_history():
+    intro_messages = []
+    technical_messages = []
+
+    try:
+        intro_keys = sorted(redis_client.keys("chat:*"))
+
+        for key in intro_keys:
+            value = redis_client.get(key)
+
+            if value:
+                intro_messages.append(json.loads(value))
+    except Exception:
+        intro_messages = []
+
+    try:
+        technical_keys = sorted(redis_client.keys("technical_interview:chat:*"))
+
+        for key in technical_keys:
+            value = redis_client.get(key)
+
+            if value:
+                technical_messages.append(json.loads(value))
+    except Exception:
+        technical_messages = []
+
+    return {
+        "intro": intro_messages,
+        "technical": technical_messages
+    }
+
 if __name__ == "__main__":
     uvicorn.run(app, host="0.0.0.0", port=8000)
 
