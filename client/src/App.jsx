@@ -151,6 +151,23 @@ function App() {
     setBackgroundSummary('')
   }
 
+  const handleUseSampleResume = async () => {
+    handleClearCustomInputs()
+    setQuestionLoading(true)
+
+    try {
+      const response = await fetch('http://127.0.0.1:8000/api/generate-questions')
+      const data = await response.json()
+      setGeneratedQuestions(data.questions)
+      setQuestionSource(data.profileSource)
+    } catch {
+      setGeneratedQuestions('Unable to load sample resume questions right now.')
+      setQuestionSource(null)
+    }
+
+    setQuestionLoading(false)
+  }
+
   const githubProjects = resumeAnalysis?.githubDetails || []
   const modules = interviewModules?.modules || []
   const capabilityItems = [
@@ -277,6 +294,14 @@ function App() {
                   disabled={questionLoading}
                 >
                   Clear inputs
+                </button>
+                <button
+                  type="button"
+                  className="secondary-button rounded-2xl px-4 py-3 text-sm font-semibold text-slate-100"
+                  onClick={handleUseSampleResume}
+                  disabled={questionLoading}
+                >
+                  Use sample resume
                 </button>
               </div>
             </div>
