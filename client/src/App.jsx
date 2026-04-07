@@ -6,6 +6,10 @@ function App() {
   const [interviewModules, setInterviewModules] = useState(null)
   const [capabilities, setCapabilities] = useState(null)
   const [generatedQuestions, setGeneratedQuestions] = useState('')
+  const [customGithubDetails, setCustomGithubDetails] = useState('')
+  const [customLeetcodeDetails, setCustomLeetcodeDetails] = useState('')
+  const [backgroundSummary, setBackgroundSummary] = useState('')
+  const [questionLoading, setQuestionLoading] = useState(false)
   const [resumeAnalysis, setResumeAnalysis] = useState(null)
   const [chatHistory, setChatHistory] = useState(null)
   const [sessionStatus, setSessionStatus] = useState(null)
@@ -108,6 +112,31 @@ function App() {
     loadData()
   }, [])
 
+  const handleCustomQuestionGeneration = async () => {
+    setQuestionLoading(true)
+
+    try {
+      const response = await fetch('http://127.0.0.1:8000/api/generate-questions/custom', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          githubDetails: customGithubDetails ? [customGithubDetails] : null,
+          leetcodeDetails: customLeetcodeDetails || null,
+          backgroundSummary: backgroundSummary || null
+        })
+      })
+
+      const data = await response.json()
+      setGeneratedQuestions(data.questions)
+    } catch {
+      setGeneratedQuestions('Unable to generate custom interview questions right now.')
+    }
+
+    setQuestionLoading(false)
+  }
+
   const githubProjects = resumeAnalysis?.githubDetails || []
   const modules = interviewModules?.modules || []
   const capabilityItems = [
@@ -188,14 +217,51 @@ function App() {
 
         <div className="mt-6 grid gap-6 lg:grid-cols-2">
           <div className="content-panel rounded-3xl p-6">
-            <h2 className="text-2xl font-semibold text-white">Generated interview questions</h2>
-            <div className="mt-4">
-              <div className="list-row rounded-2xl px-4 py-3 whitespace-pre-line text-slate-200">
-                {loading ? 'Generating questions...' : generatedQuestions}
-              </div>
+            <h2 className="text-2xl font-semibold text-white">Custom question input</h2>
+            <div className="mt-4 space-y-4">
+              <textarea
+                className="input-area w-full rounded-2xl px-4 py-3 text-slate-100"
+                rows="4"
+                placeholder="Paste GitHub project summary or repository details"
+                value={customGithubDetails}
+                onChange={(event) => setCustomGithubDetails(event.target.value)}
+              />
+              <textarea
+                className="input-area w-full rounded-2xl px-4 py-3 text-slate-100"
+                rows="4"
+                placeholder="Paste LeetCode stats or coding profile details"
+                value={customLeetcodeDetails}
+                onChange={(event) => setCustomLeetcodeDetails(event.target.value)}
+              />
+              <textarea
+                className="input-area w-full rounded-2xl px-4 py-3 text-slate-100"
+                rows="3"
+                placeholder="Add a short background summary"
+                value={backgroundSummary}
+                onChange={(event) => setBackgroundSummary(event.target.value)}
+              />
+              <button
+                type="button"
+                className="action-button rounded-2xl px-4 py-3 text-sm font-semibold text-slate-950"
+                onClick={handleCustomQuestionGeneration}
+                disabled={questionLoading}
+              >
+                {questionLoading ? 'Generating...' : 'Generate custom questions'}
+              </button>
             </div>
           </div>
 
+          <div className="content-panel rounded-3xl p-6">
+            <h2 className="text-2xl font-semibold text-white">Generated interview questions</h2>
+            <div className="mt-4">
+              <div className="list-row rounded-2xl px-4 py-3 whitespace-pre-line text-slate-200">
+                {loading || questionLoading ? 'Generating questions...' : generatedQuestions}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div className="mt-6 grid gap-6 lg:grid-cols-2">
           <div className="content-panel rounded-3xl p-6">
             <h2 className="text-2xl font-semibold text-white">Platform capabilities</h2>
             <div className="mt-4 space-y-3">

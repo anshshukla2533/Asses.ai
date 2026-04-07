@@ -68,3 +68,20 @@ body {
   background: rgba(239, 68, 68, 0.18);
   color: #fecaca;
 }
+
+.input-area {
+  border: 1px solid rgba(148, 163, 184, 0.16);
+  background: rgba(15, 23, 42, 0.72);
+  resize: vertical;
+}
+
+.action-button {
+  border: none;
+  background: linear-gradient(90deg, #67e8f9, #22d3ee);
+  cursor: pointer;
+}
+
+.action-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
