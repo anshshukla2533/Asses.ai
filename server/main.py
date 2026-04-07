@@ -3,6 +3,7 @@ import os
 import importlib
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from pydantic import BaseModel
 import uvicorn
 from redis_global import redis_client
 from Scrapper.scrap import get_github_details, get_leetcode_details
@@ -11,6 +12,12 @@ from generate import generate_text
 app = FastAPI()
 
 resume_path = os.path.join(os.path.dirname(__file__), "constant", "resume.pdf")
+
+class QuestionRequest(BaseModel):
+    resumePath: str | None = None
+    githubDetails: list | None = None
+    leetcodeDetails: str | dict | None = None
+    backgroundSummary: str | None = None
 
 app.add_middleware(
     CORSMiddleware,
@@ -67,6 +74,25 @@ def get_candidate_profile():
         "github_details": github_details,
         "leetcode_details": leetcode_details
     }
+
+def build_question_prompt(candidate_profile, background_summary=""):
+    return f"""
+You are an AI technical interviewer.
+
+Use the following candidate profile data directly to generate 3 personalized technical interview questions.
+Ask:
+1. One OOP or DBMS question
+2. One coding/problem-solving question
+3. One follow-up optimization or project-based question
+
+Candidate profile:
+{candidate_profile}
+
+Background summary:
+{background_summary}
+
+Return the output as plain text with numbered questions only.
+"""
 
 @app.get("/")
 def read_root():
@@ -244,20 +270,42 @@ def capabilities():
 @app.get("/api/generate-questions")
 def generate_questions():
     candidate_profile = get_candidate_profile()
-    prompt = f"""
-You are an AI technical interviewer.
+    prompt = build_question_prompt(candidate_profile)
 
-Use the following candidate profile data directly to generate 3 personalized technical interview questions.
-Ask:
-1. One OOP or DBMS question
-2. One coding/problem-solving question
-3. One follow-up optimization or project-based question
+    try:
+        questions = generate_text(prompt)
+    except Exception as e:
+        questions = f"Error generating questions: {e}"
 
-Candidate profile:
-{candidate_profile}
+    return {
+        "candidateProfile": candidate_profile,
+        "questions": questions
+    }
 
-Return the output as plain text with numbered questions only.
-"""
+@app.post("/api/generate-questions/custom")
+def generate_custom_questions(request: QuestionRequest):
+    target_resume_path = request.resumePath or resume_path
+    github_details = request.githubDetails
+    leetcode_details = request.leetcodeDetails
+
+    if github_details is None:
+        try:
+            github_details = get_github_details(target_resume_path)
+        except Exception:
+            github_details = []
+
+    if leetcode_details is None:
+        try:
+            leetcode_details = get_leetcode_details(target_resume_path)
+        except Exception:
+            leetcode_details = ""
+
+    candidate_profile = {
+        "github_details": github_details,
+        "leetcode_details": leetcode_details
+    }
+
+    prompt = build_question_prompt(candidate_profile, request.backgroundSummary or "")
 
     try:
         questions = generate_text(prompt)
