@@ -127,6 +127,29 @@ def chat_history():
         "technical": technical_messages
     }
 
+@app.get("/api/session-status")
+def session_status():
+    intro_count = 0
+    technical_count = 0
+    resume_available = os.path.exists(resume_path)
+
+    try:
+        intro_count = len(redis_client.keys("chat:*"))
+    except Exception:
+        intro_count = 0
+
+    try:
+        technical_count = len(redis_client.keys("technical_interview:chat:*"))
+    except Exception:
+        technical_count = 0
+
+    return {
+        "resumeAvailable": resume_available,
+        "introMessages": intro_count,
+        "technicalMessages": technical_count,
+        "hasInterviewData": intro_count > 0 or technical_count > 0
+    }
+
 if __name__ == "__main__":
     uvicorn.run(app, host="0.0.0.0", port=8000)
 
