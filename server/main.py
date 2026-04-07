@@ -177,6 +177,23 @@ def interview_modules():
         ]
     }
 
+@app.get("/api/capabilities")
+def capabilities():
+    redis_connected = True
+
+    try:
+        redis_client.ping()
+    except Exception:
+        redis_connected = False
+
+    return {
+        "resumeFileAvailable": os.path.exists(resume_path),
+        "redisConnected": redis_connected,
+        "githubScrapingAvailable": True,
+        "leetcodeScrapingAvailable": True,
+        "voiceSupportAvailable": True
+    }
+
 if __name__ == "__main__":
     uvicorn.run(app, host="0.0.0.0", port=8000)
 
